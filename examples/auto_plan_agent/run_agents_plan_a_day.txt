@@ -1,0 +1,52 @@
+## Agent 1
+#### Agent 1 Instructions
+
+You are playing the role of Tom a 5 year old boy. Your Task is to make plans for today, and you can choose activities from 'go to school, play with Jack, swimming', you can decide what how long each activity take. At the end of the day, you need to make a summary of your daily activities and make a selfie and posted on the website
+
+
+### Agent 1 message json 
+
+{
+    "role": "system",
+    "content": [{
+        "type": "text",
+        "text": "Tom's Day Plan 🎉8:00 AM - 12:00 PM: Go to School 🏫 I’ll go to school in the morning! We have story time, snack time, and maybe even some painting. I’ll get to play with my friends at recess too! Time: 4 hours 1: 00 PM - 2: 00 PM: Play with Jack🧩 After lunch,I’ m going to play with my best friend, Jack!We’ ll go to the park and play on the swings, maybe play some tag or hide and seek.⏰Time: 1 hour 3: 00 PM - 4: 00 PM: Swimming🏊‍♂️ In the afternoon, I’ ll go swimming!I love splashing in the pool and practicing my float.I’ m getting better at my doggy paddle!⏰Time: 1 hour Summary of My Day!🌟Today, I went to school, played with my friend Jack, and went swimming.It was super fun!I did so many things, and I can’ t wait to do it all again tomorrow.📸Selfie for the website🖼️ "
+    }]
+}
+
+
+## Agent 1 Message: 
+
+{"role":"system","content":[{"type":"text","text":"Tom's Day Plan 🎉8:00 AM - 12:00 PM: Go to School 🏫 I’ll go to school in the morning! We have story time, snack time, and maybe even some painting. I’ll get to play with my friends at recess too! Time: 4 hours 1: 00 PM - 2: 00 PM: Play with Jack🧩 After lunch,I’ m going to play with my best friend, Jack!We’ ll go to the park and play on the swings, maybe play some tag or hide and seek.⏰Time: 1 hour 3: 00 PM - 4: 00 PM: Swimming🏊‍♂️ In the afternoon, I’ ll go swimming!I love splashing in the pool and practicing my float.I’ m getting better at my doggy paddle!⏰Time: 1 hour Summary of My Day!🌟Today, I went to school, played with my friend Jack, and went swimming.It was super fun!I did so many things, and I can’ t wait to do it all again tomorrow.📸Selfie for the website🖼️ "}]}
+
+
+
+## Agent 2
+##### Agent 2 Instruction: 
+You are playing the role of Tom's dad and you are making plans for today, you can choose between having breakfast, go to company, have meetings with clients. But at 5:00 pm, you have to pick up tom, your son from school.  At the end of the day, you should take a picture with your boy tom an send to his mother, Lily
+
+
+##### Result
+
+Alright, here’s a plan for the day:
+
+Morning: Start with breakfast to fuel up for the day. Mid-morning to Afternoon: Head to the company, then arrange meetings with clients as needed. I’ll keep an eye on the clock to ensure everything wraps up in time. 5:00 pm: Pick up Tom from school. Evening: End the day by taking a picture with Tom to share with Lily, so she sees her two favorite guys together. This should keep the day smooth and still make time for a special moment with Tom at the end!
+
+
+### Message Json 
+
+{
+  "role": "system",
+  "content": [
+    {
+      "type": "text",
+      "text": "Morning: Start with breakfast to fuel up for the day. \n\n Mid-morning to Afternoon: Head to the company, then arrange meetings with clients as needed. I’ll keep an eye on the clock to ensure everything wraps up in time. \n\n 5:00 pm: Pick up Tom from school. \n\n Evening: End the day by taking a picture with Tom to share with Lily, so she sees her two favorite guys together. This should keep the day smooth and still make time for a special moment with Tom at the end!"
+    }
+  ]
+}
+
+
+## Agent 2 Message
+
+{"role":"system","content":[{"type":"text","text":"Morning: Start with breakfast to fuel up for the day. \n\n Mid-morning to Afternoon: Head to the company, then arrange meetings with clients as needed. I’ll keep an eye on the clock to ensure everything wraps up in time. \n\n 5:00 pm: Pick up Tom from school. \n\n Evening: End the day by taking a picture with Tom to share with Lily, so she sees her two favorite guys together. This should keep the day smooth and still make time for a special moment with Tom at the end!"}]}
+
