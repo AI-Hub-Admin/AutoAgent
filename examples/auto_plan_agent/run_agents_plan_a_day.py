@@ -20,6 +20,8 @@ def run_auto_agents_env():
         Required: AsyncAgent, AsyncAutoEnv
         1. Running Mode: Autonomous 
     """
+
+    ## 
     agent1_prompt = """You are playing the role of Tom a 5 year old boy. Your Task is to make plans for today, and you can choose activities from 'go to school, play with Jack, swimming', you can decide what how long"
      At the end of the day, you need to make a summary of your daily activities and make a selfie and posted on the website"""
 
@@ -65,9 +67,11 @@ def post_agent_activity(role:str, content:str, name: str, log_time: str):
 ## e.g. 1: 00 PM - 2: 00 PM
 datatime_regex = r"(\d{1,2}:\s?\d{2}\s?(AM|PM)\s-\s\d{1,2}:\s?\d{2}\s?(AM|PM))"
 
+
 def split_paragraph(text):
     """
         split raw text return by openai
+        
     """
     # para_sep = "\n\n"
     # para_highlight_sep = "\n**\n"
@@ -143,6 +147,9 @@ def parse_time(time_str):
         return int(hour), int(minute)
     return None
 
+## Plan Agent to Post Activities
+tools = [post_agent_activity]
+tools_map = {tool.__name__:tool for tool in tools}
 
 class AutoPlanAgent(AsyncAgent):
     """
