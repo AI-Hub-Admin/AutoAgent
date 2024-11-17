@@ -44,12 +44,17 @@ OUTPUT_KEY_ID = "id"
 OUTPUT_KEY_TIMESTAMP = "timestamp"
 OUTPUT_KEY_AVATAR = "avatar"
 
+
+
+## 
 KEY_INSTRUCTIONS = "instructions"
 KEY_AGENTS = "agents"
 KEY_AGENTS_PROMPT = "agents_prompt"
 KEY_TOOLS = "tools"
 KEY_TOOLS_PROMPT = "tools_prompt"
 KEY_ENV_PROMPT = "env_prompt"
+KEY_FUNC_CALL_LLM = "call_llm"
+KEY_FUNC_PROCESS_LLM = "process_llm"
 
 
 ## Tool Calling
