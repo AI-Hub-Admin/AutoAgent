@@ -84,7 +84,10 @@ class AsyncAgent(BaseAgent):
         self.est_duration = 5
         ## internal variable
         self.memory = []
-
+        ## functions to call llm function and process result from llm functions
+        self.call_llm = kwargs[KEY_FUNC_CALL_LLM] if KEY_FUNC_CALL_LLM in kwargs else None
+        self.process_llm = kwargs[KEY_FUNC_PROCESS_LLM] if KEY_FUNC_PROCESS_LLM in kwargs else None
+    
     async def run_loop(self):
 
         try:
