@@ -1,14 +1,12 @@
-# AutoAgent
-Awesome Autonomous Agents Repo for public available Autonomous Agents
+# AutoAgent: Awesome Autonomous Agents Repo and Asynchronous Environment for public available Autonomous Agents
 
 This is the official github repo of pypi package AutoAgent (https://pypi.org/project/AutoAgent). This repo is intended to provide common interface of Autonomous Agents async runing, debuging, deployment.
 To contribute the AutoAgent repo, you can visit the guidelines at (http://www.deepnlp.org/blog?category=agent)
 
-Autonomous Agents is becoming more popular than ever and can help enterprise reduce costs and boost revenue, such as [https://blogs.microsoft.com/blog/2024/10/21/new-autonomous-agents-scale-your-team-like-never-before/](https://blogs.microsoft.com/blog/2024/10/21/new-autonomous-agents-scale-your-team-like-never-before/) and Claude's Computer Use (https://docs.anthropic.com/en/docs/build-with-claude/computer-use).
+Autonomous Agents is becoming more popular than ever and can help enterprise reduce costs and boost revenue, such as [https://blogs.microsoft.com/blog/2024/10/21/new-autonomous-agents-scale-your-team-like-never-before/](https://blogs.microsoft.com/blog/2024/10/21/new-autonomous-agents-scale-your-team-like-never-before/) and Claude's Computer Use Autonommous AI Agents(https://docs.anthropic.com/en/docs/build-with-claude/computer-use).
 
 
 ## Awesome AI Agents Resources and Public Reviews
-
 
 |  Project  | Agent Sub-Category | Developer| URL | AI Agent Reviews  |
 |  ----  | ----  | ----  | ----  | ----  | 
@@ -26,11 +24,11 @@ To help visualize the development and running process of AI Agents, we provide "
 
 **AutoAgent** is a common async run loop wrapper of AI agents, compatible with most of the LLM APIs and local models. 
 
-**AgentBoard** is a project (https://github.com/AI-Hub-Admin/agentboard), just like "tensorboard" to visualize tensors of model training, help visualize the detailed process, workflow, text, audio, image input and output of Agent running with cutomized loging functions.
+**AgentBoard** is a project (https://github.com/AI-Hub-Admin/agentboard), just like "tensorboard" to visualize tensors of model training, help visualize the detailed process, workflow, text, audio, image input and output of Agent running with cutomized loging functions. For the tutorial of agentboard, you can visit ([AgentBoard: AI Agent Visualization Toolkit for Agent Loop Workflow RAG Tool Use Functions Callings and Multi Modal Data Visualization](http://www.deepnlp.org/blog/agentBoard-ai-agent-visualization-toolkit-agent-loop-workflow))
 
-To run the examples blow, you can first setup the agentboard and start a web admin page as in the repo (https://github.com/AI-Hub-Admin/agentboard). 
 
-It comes with a default minimal functioning Community GUI (X/twitter style) to visualze difference phases(plan/act/react/reflect) of Autonomous agents (Day Planner Agents).
+You can first setup the agentboard and start a web admin page as in the repo (https://github.com/AI-Hub-Admin/agentboard). 
+It comes with a default minimal functioning Community GUI (X/twitter style) to visualze difference phases (plan/act/react/reflect) of Autonomous AI Agent Loop.
 
 
 **Auto Plan AI Agents** <br>
@@ -44,10 +42,12 @@ It comes with a default minimal functioning Community GUI (X/twitter style) to v
 
 ## Install
 ```
-pip install AutoAgent, agentboard
+pip install AutoAgent agentboard
 ```
 
 ### Setup agentboard for Visualization
+
+Cloning From Github
 
 ```
 git clone https://github.com/AI-Hub-Admin/agentboard.git
@@ -64,7 +64,17 @@ python3 run_agent_board.py
 
 ```
 
-You can visit URL: http://127.0.0.1:5000/agent to see if the board run successfully.
+Using Command Line
+
+
+```
+## cmd line
+agentboard
+
+# agentboard --logdir=./log --static=./static --port=5000 
+```
+
+You can visit URL: http://127.0.0.1:5000/agent to see if the agentboard run successfully. 
 
 
 
@@ -88,7 +98,6 @@ In the plan->act->reflect agent loop.
 
 
 Full implementation in folder /examples/auto_plan_agent/run_agents_plan_a_day.py
-
 
 ```
 
@@ -178,9 +187,20 @@ if __name__ == "__main__":
 ```
 
 
-
-
 ## Agents Related Pipeline Workflow and Document
+### Related Blogs <br>
+[AgentBoard Workflow](http://www.deepnlp.org/blog/agentBoard-ai-agent-visualization-toolkit-agent-loop-workflow) <br>
+[AgentBoard Documents](https://ai-hub-admin.github.io/agentboard) <br>
+[AutoAgent Documents](https://ai-hub-admin.github.io/AutoAgent) <br>
+[DeepNLP AI Agents Designing Guidelines](http://www.deepnlp.org/blog?category=agent) <br>
+[Introduction to multimodal generative models](http://www.deepnlp.org/blog/introduction-to-multimodal-generative-models) <br>
+[Generative AI Search Engine Optimization](http://www.deepnlp.org/blog/generative-ai-search-engine-optimization-how-to-improve-your-content) <br>
+[AI Image Generator User Reviews](http://www.deepnlp.org/store/image-generator) <br>
+[AI Video Generator User Reviews](http://www.deepnlp.org/store/video-generator) <br>
+[AI Chatbot & Assistant Reviews](http://www.deepnlp.org/store/chatbot-assistant) <br>
+[Best AI Tools User Reviews](http://www.deepnlp.org/store/pub/) <br>
+[AI Boyfriend User Reviews](http://www.deepnlp.org/store/chatbot-assistant/ai-boyfriend) <br>
+[AI Girlfriend User Reviews](http://www.deepnlp.org/store/chatbot-assistant/ai-girlfriend) <br>
 
 
 ### AI Services Reviews and Ratings <br>
@@ -242,14 +262,3 @@ if __name__ == "__main__":
 [BMW i4](http://www.deepnlp.org/store/pub/pub-bmw-i4) <br>
 [Baidu Apollo Reviews](http://www.deepnlp.org/store/pub/pub-baidu-apollo) <br>
 [Hyundai IONIQ 6](http://www.deepnlp.org/store/pub/pub-hyundai-ioniq-6) <br>
-
-### Related Blogs <br>
-[DeepNLP AI Agents Designing Guidelines](http://www.deepnlp.org/blog?category=agent) <br>
-[Introduction to multimodal generative models](http://www.deepnlp.org/blog/introduction-to-multimodal-generative-models) <br>
-[Generative AI Search Engine Optimization](http://www.deepnlp.org/blog/generative-ai-search-engine-optimization-how-to-improve-your-content) <br>
-[AI Image Generator User Reviews](http://www.deepnlp.org/store/image-generator) <br>
-[AI Video Generator User Reviews](http://www.deepnlp.org/store/video-generator) <br>
-[AI Chatbot & Assistant Reviews](http://www.deepnlp.org/store/chatbot-assistant) <br>
-[Best AI Tools User Reviews](http://www.deepnlp.org/store/pub/) <br>
-[AI Boyfriend User Reviews](http://www.deepnlp.org/store/chatbot-assistant/ai-boyfriend) <br>
-[AI Girlfriend User Reviews](http://www.deepnlp.org/store/chatbot-assistant/ai-girlfriend) <br>
