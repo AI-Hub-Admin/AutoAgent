@@ -5,53 +5,21 @@ import queue
 from flask import Flask, jsonify
 import time
 import re
+import os
 
 import random
 import asyncio
-
+import json
 
 from AutoAgent.core import AsyncAgent, AsyncAutoEnv
 from AutoAgent.core_constants import *
 from AutoAgent.agent_utils import call_llm_openai_api
-from AutoAgent.utils import get_current_datetime, get_current_timestamp
+from AutoAgent.utils import get_current_datetime, get_current_timestamp, read_file
 
-def run_auto_agents_env():
-    """
-        Required: AsyncAgent, AsyncAutoEnv
-        1. Running Mode: Autonomous 
-    """
-
-    ## 
-    agent1_prompt = """You are playing the role of Tom a 5 year old boy. Your Task is to make plans for today, and you can choose activities from 'go to school, play with Jack, swimming', you can decide what how long"
-     At the end of the day, you need to make a summary of your daily activities and make a selfie and posted on the website"""
-
-    agent2_prompt = """You are playing the role of Tom's dad and you are making plans for todays' activies, you can choose between having breakfast, go to company, 
-    have meetings with clients. At 5:00 pm, you should pick up tom, your boy from school. 
-    At the end of the day, you should take a picture with your boy tom an send to his mother, Lily."""
-
-    agent_prompt_list = [agent1_prompt, agent2_prompt]
-
-    system_prompt = "You can choose from the below tools, functions include "
-    env_prompt_list = [system_prompt]
-
-    init_dict = {
-        "agent": agent_prompt_list,
-        "env": env_prompt_list,
-        "tools": ["API for create welcome message for user 1 is: xxxx", "API for auditing user created comment is: xxxx"]
-    }
-
-    from openai import OpenAI
-    # api_key = os.environ.get("OPENAI_API_KEY")
-    api_key = "xxxxxxxx"
-    client = OpenAI(api_key=api_key)
-    env = AsyncAutoEnv(client, init_dict)
-    results = env.run()
-
+## fine a tool to post autoagent activity to agentboard
 def post_agent_activity(role:str, content:str, name: str, log_time: str):
     """
-        post a content to instagram simulation
-        content: str
-
+        post a content to agentboard
         URI: http://127.0.0.1:5000/agent/activities
     """
     result = {}
@@ -64,9 +32,13 @@ def post_agent_activity(role:str, content:str, name: str, log_time: str):
         print (e)
     return result
 
-## e.g. 1: 00 PM - 2: 00 PM
-datatime_regex = r"(\d{1,2}:\s?\d{2}\s?(AM|PM)\s-\s\d{1,2}:\s?\d{2}\s?(AM|PM))"
 
+## Plan Agent to Post Activities
+tools = [post_agent_activity]
+tools_map = {tool.__name__:tool for tool in tools}
+
+
+datatime_regex = r"(\d{1,2}:\s?\d{2}\s?(AM|PM)\s-\s\d{1,2}:\s?\d{2}\s?(AM|PM))"
 
 def split_paragraph(text):
     """
@@ -84,7 +56,6 @@ def split_paragraph(text):
 def customized_content_split(text):
     """ Split text into list of plans
     """
-
     plan_list = []
     cur_plan_dict = {}
     cur_slot = ""
@@ -120,8 +91,7 @@ def customized_content_split(text):
     plan_list.append(cur_plan_dict)    
     return plan_list
 
-
-def test_customized_content_split():
+def unittest_customized_content_split():
     """
         OpenAI ** split paragraph
     """
@@ -137,7 +107,6 @@ def test_customized_content_split():
     plan_list_2 = customized_content_split(text2)
     print (plan_list_2)
 
-
 def parse_time(time_str):
     """
     """
@@ -146,10 +115,6 @@ def parse_time(time_str):
         hour, minute = match.groups()
         return int(hour), int(minute)
     return None
-
-## Plan Agent to Post Activities
-tools = [post_agent_activity]
-tools_map = {tool.__name__:tool for tool in tools}
 
 class AutoPlanAgent(AsyncAgent):
     """
@@ -165,6 +130,10 @@ class AutoPlanAgent(AsyncAgent):
         self.default_duration = 10
         self.debug = kwargs["debug"] if "debug" in kwargs else False
         self.register_user()
+        # restore memory if new memory are provided
+        memory = kwargs["memory"] if "memory" in kwargs else None
+        if memory is not None:
+            self.restore_memory(memory)
 
     def register_user(self):
         user_info = {}
@@ -179,8 +148,8 @@ class AutoPlanAgent(AsyncAgent):
             url = "http://127.0.0.1:5000/agent/user/add"
             result = requests.post(url, json = data)
         except Exception as e:
+            print ("ERROR: Agent register_user failed...")
             print (e)
-        return result
 
     def get_default_duration(self):
         """ default duration set to 10s for each plan
@@ -194,13 +163,11 @@ class AutoPlanAgent(AsyncAgent):
             content = message["content"]
             ## Calling LLM to split the paragraph of plan to list of agenda
 
-
             ## End of Calling LLM to split text
             sub_plans = customized_content_split(content)
 
-            print ("DEBUG: customized_content_split Input content %s" % content)
-            print ("DEBUG: customized_content_split sub_plans %s" % str(sub_plans))
-
+            # print ("DEBUG: customized_content_split Input content %s" % content)
+            # print ("DEBUG: customized_content_split sub_plans %s" % str(sub_plans))
 
             for sub_plan in sub_plans:
                 sub_plan_content = sub_plan["content"]
@@ -218,20 +185,23 @@ class AutoPlanAgent(AsyncAgent):
 
         duration = self.est_duration + int(random.random() * self.est_duration)
         # list of content, make plan for today
-        messages = call_llm_openai_api(self.name + ":" + self.instructions)
+        messages = []
+        key = os.environ.get("OPENAI_API_KEY")
+        if key is not None:
+            messages = call_llm_openai_api(self.name + ":" + self.instructions)
+        else:
+            messages = self.memory
+
+        # messages = call_llm_openai_api(self.name + ":" + self.instructions)
         plan_list = self.process_messages_to_plan_list(messages)
 
         ## debug
         if self.debug:
             [print("#### %s|Plan Phase %d|%s" % (self.name, i, plan["content"]) ) for (i, plan) in enumerate(plan_list)]
 
-        # print ("DEBUG: %s|plan_list size %d|%s|" % (self.name, len(plan_list), str(plan_list)))
-        ## split the plan and make actionable list
-        # plan_list = [{"content": "do homework", "start": "", "end": "", "duration": ""}]
         plan_info = {}
         plan_info["input"] = {KEY_INSTRUCTIONS: self.instructions}
         plan_info["output"] = {"plans": plan_list}
-
         self.info_dict["plan"] = plan_info
         await asyncio.sleep(duration)
         return duration
@@ -285,12 +255,7 @@ class AutoPlanAgent(AsyncAgent):
         act_info["input"] = ""
         act_info["output"] = result_dict
         self.info_dict["act"] = act_info
-
-        ## implement your functions
-        ## 
-        # await asyncio.sleep(duration)
         return total_duration
-
 
 def get_openai_client():
     from openai import OpenAI
@@ -301,11 +266,7 @@ def get_openai_client():
 
 def run_auto_plan_agent_to_post():
     """
-        First mode: Implement a new Agent Class, Set Plan functions
-
-        Step 1: New Object, new agent set back to environments
-
-        Step 2: AsyncEnvironmnet Run
+        Run Case: Initialize an AutoPlan Agent who can make plans and post the plans to agentboard locally
     """
     instructions = """You are playing the role of Tom a 5 year old boy. Your Task is to make plans for today, and you can choose activities from 'go to school, play with Jack, swimming', you can decide what how long each activity take.
         At the end of the day, you need to make a summary of your daily activities and make a selfie and posted on the website"""
@@ -315,20 +276,20 @@ def run_auto_plan_agent_to_post():
 
 def run_auto_plan_agent_env():
     """
-        Step 1: Design your customized agents
-        Step 2: new Agent Environment
-        Step 3: Run
+        Run Case: Initialize two AutoPlan Agents, Tom and Dad, who make plans individually and post their activities on the agentboard 
     """
     agent1_prompt = """You are playing the role of Tom a 5 year old boy. Your Task is to make plans for today, and you can choose activities from 'go to school, play with Jack, swimming', you can decide what how long"
      At the end of the day, you need to make a summary of your daily activities and make a selfie and posted on the website"""
     agent2_prompt = """You are playing the role of Tom's dad and you are making plans for today, you can choose between having breakfast, go to company, 
     have meetings with clients. But at 5:00 pm, you have to pick up tom, your son from school.  At the end of the day, you should take a picture with your boy Tom and send to his mother, Lily."""
 
-    agent1 = AutoPlanAgent(name="Tom", instructions=agent1_prompt, avatar="icon_children.jpg", debug=True)
-    agent2 = AutoPlanAgent(name="Daddy", instructions=agent2_prompt, avatar="icon_male.jpg", debug=True)
+    memory_list = [json.loads(line) for line in read_file("./memory.txt")]
+    assert len(memory_list) == 2, "Restored 2 agent memories as list of json objects OpenAI response..."
+
+    agent1 = AutoPlanAgent(name="Tom", instructions=agent1_prompt, avatar="icon_children.jpg", memory=[memory_list[0]],debug=True)
+    agent2 = AutoPlanAgent(name="Daddy", instructions=agent2_prompt, avatar="icon_male_chat.jpg", memory=[memory_list[1]], debug=True)
 
     agents = [agent1, agent2]
-    # agents = [AutoPlanAgent(name=agent_name, instructions=prompt, avatar=avatar, debug=True) for i, (agent_name, prompt, avatar) in enumerate(zip(agents_name, prompt_list, agents_avatar))]
     env = AsyncAutoEnv(get_openai_client(), agents=agents)
     results = env.run()
 
