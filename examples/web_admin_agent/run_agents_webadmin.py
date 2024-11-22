@@ -6,6 +6,7 @@ from flask import Flask, jsonify
 import time
 import re
 import traceback
+import os
 
 import random
 import asyncio
@@ -17,10 +18,8 @@ from AutoAgent.utils import get_current_datetime, get_current_timestamp
 
 def run_auto_plan_agent_to_post():
     """
-        First mode: Implement a new Agent Class, Set Plan functions
-
-        Step 1: New Object, new agent set back to environments
-
+        Implement a new Agent Class, Set Plan functions
+        Step 1: New Object, new agent and set back to environments
         Step 2: Run AsyncEnvironmnet
     """
     instructions = """You are playing the role of Tom a 5 year old boy. Your Task is to make plans for today, and you can choose activities from 'go to school, play with Jack, swimming', you can decide what how long each activity take.
@@ -65,8 +64,9 @@ class AutoWebAdminAgent(AsyncAgent):
             url = "http://127.0.0.1:5000/agent/user/add"
             result = requests.post(url, json = data)
         except Exception as e:
+            print ("ERROR: Failed to register_user on agentboard...")
             print (e)
-        return result
+
     
     def get_default_duration(self):
         """ default duration set to 10s for each plan
@@ -86,7 +86,8 @@ class AutoWebAdminAgent(AsyncAgent):
 
             print ("DEBUG: customized_content_split Input content %s" % content)
             print ("DEBUG: customized_content_split sub_plans %s" % str(sub_plans))
-          
+
+
             for sub_plan in sub_plans:
                 sub_plan_content = sub_plan["content"]
                 sub_plan_duration = sub_plan["duration"] if "duration" in sub_plan else None 
@@ -102,8 +103,16 @@ class AutoWebAdminAgent(AsyncAgent):
             assert hasattr(self, attr), f"Attribute '{attr}' is missing from the class instance."
 
         duration = self.est_duration + int(random.random() * self.est_duration)
+
+        messages = []
+        key = os.environ.get("OPENAI_API_KEY")
+        if key is not None:
+            messages = call_llm_openai_api(self.name + ":" + self.instructions)
+        else:
+            # optional restore memory from outside storage
+            messages = []
+
         # list of content, make plan for today
-        messages = call_llm_openai_api(self.name + ":" + self.instructions)
         plan_list = self.process_messages_to_plan_list(messages)
 
         ## debug
@@ -120,7 +129,6 @@ class AutoWebAdminAgent(AsyncAgent):
         self.info_dict["plan"] = plan_info
         await asyncio.sleep(duration)
         return duration
-
 
     def get_runtime(self):
         """
@@ -158,10 +166,7 @@ class AutoWebAdminAgent(AsyncAgent):
                     for data in data_list:                            
                         ## fill parameters using result 
                         ## Calling LLM
-
-
-
-                        ## Todo filling parameters
+                        ## Todo hard coding of filling parameters
                         parameters = {}
                         if isinstance(data, dict):
                             parameters.update(data)
@@ -195,7 +200,6 @@ class AutoWebAdminAgent(AsyncAgent):
         if (tools == None):
             raise ValueError("Input Args tools is None")
         self._tools = tools
-
 
 def get_request_activities_pending():
     """
@@ -242,11 +246,10 @@ def get_request_content_needs_auto_comment():
         print (e)
     return result
 
-
 def generate_comment(content):
     """
     """
-    comment_dummy_list = ["Yes, your content is really interesting", "You are absolutely correct.", "I am afraid I can't agree with your opinions"]
+    comment_dummy_list = ["Yes, your post is so interesting!! ", "You are absolutely correct!! ", "I am afraid I can't agree with you..."]
     ### Calling LLM
 
 
@@ -350,21 +353,16 @@ def run_webadmin_agent_env():
     """
         Step 1: Design your customized agents
         Step 2: new Agent Environment
-        Step 3: Run
-
-        Todo: 1. merge function trigger and tools to the same functions list
+        Step 3: Run the webadmin env with two AI Agents, one is to change comment from pending to online, the otherone is to auto comment on the post activities.
     """
     ## Website Content Auditor Agent (Decide if contents are suitable to publish or if the contents are spam)
     agent1_prompt = """You are playing the role of a website content Auditor, you can decide if users' published comments are spam or not and publish the content from pending status. """
-    ## Website Automatic Reply Agent
     agent2_prompt = """You are playing the role of a website automatic reply agent, whenever users publish a post or leave a comment, please replies some complementary words to the users, You can use the tools and post on the available RESTFUL APIs."""
     
-    ## User Publish New Content -> Make Newly Published Content status from pending audit to online  -> comment reply bot will reply to new comment.
     webadmin_1 = AutoWebAdminAgent(name="web_content_audit", instructions=agent1_prompt, max_runtime = 3*24*60*60, tools=[post_request_update_activities_status], func_run_trigger=get_request_activities_pending,debug=True)
     webadmin_2 = AutoWebAdminAgent(name="web_auto_comment", instructions=agent2_prompt, max_runtime = 3*24*60*60, tools=[post_request_comment], func_run_trigger=get_request_content_needs_auto_comment,debug=True)
     
     agents = [webadmin_1, webadmin_2]
-    # agents = [webadmin_2]
     env = AsyncAutoEnv(get_openai_client(), agents=agents)
     results = env.run()
 
