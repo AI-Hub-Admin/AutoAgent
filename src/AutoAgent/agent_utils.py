@@ -1,5 +1,8 @@
 #coding=utf-8
 #!/usr/bin/python
+# @Time    : 2024/11/01
+# @Author  : Derek Ding
+
 
 import os
 import inspect
@@ -59,6 +62,57 @@ def function_to_schema(func) -> dict:
     }
 
 
+
+def function_to_schema_claude(func) -> dict:
+    """
+        Compatible with Claude's function calling schema
+        Ref: 
+        https://docs.anthropic.com/en/docs/build-with-claude/tool-use
+    """
+    type_map = {
+        str: "string",
+        int: "integer",
+        float: "number",
+        bool: "boolean",
+        list: "array",
+        dict: "object",
+        type(None): "null",
+    }
+
+    try:
+        signature = inspect.signature(func)
+    except ValueError as e:
+        raise ValueError(
+            f"Failed to get signature for function {func.__name__}: {str(e)}"
+        )
+
+    parameters = {}
+    for param in signature.parameters.values():
+        try:
+            param_type = type_map.get(param.annotation, "string")
+        except KeyError as e:
+            raise KeyError(
+                f"Unknown type annotation {param.annotation} for parameter {param.name}: {str(e)}"
+            )
+        parameters[param.name] = {"type": param_type}
+
+    required = [
+        param.name
+        for param in signature.parameters.values()
+        if param.default == inspect._empty
+    ]
+
+    return {
+        "name" : func.__name__, 
+        "description": (func.__doc__ or "").strip(),
+        "input_schema": {
+            "type": "object",
+            "properties": parameters,
+            "required": required
+        }
+    }
+
+
 def get_class_attributes_and_signatures(cls):
     attributes = {}    
     # Loop through class attributes using class dictionary
@@ -84,6 +138,7 @@ def get_class_attributes_and_signatures(cls):
             }
     return attributes
 
+
 def class_to_schema(cls) -> dict:
     """
         Get all the attributes of a cls, including attributes, functions or methods
@@ -93,6 +148,7 @@ def class_to_schema(cls) -> dict:
 
     # conver to OpenAI LLM function call format, e.g. AsyncAgent.__init__
     cls_init_method_name = cls.__name__ + "." + INIT_METHOD_NAME
+
 
     init_method = attributes[INIT_METHOD_NAME]
     # signature (self, args)
@@ -158,7 +214,6 @@ def execute_tool_call_from_json_simple(tool_call, tools_map):
     print(f"Assistant: {name}({parameters})")
     # call corresponding function with provided arguments
     return tools_map[name](**parameters)
-
 
 def execute_tool_call_from_json(tool_call, tools_map):
     """
@@ -352,6 +407,7 @@ def call_llm_openai_api(prompt):
         s = traceback.format_exc()
         print (s)        
     return messages
+
 
 def test_fill_schema():
 
